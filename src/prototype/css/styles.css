@@ -28,3 +28,19 @@ form {
     flex-direction: column;
     gap: 0.5rem;
 }
+
+.menu {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.upper {
+    text-transform: uppercase;
+}
+
+.error {
+    color: red;
+    font-weight: bold;
+}

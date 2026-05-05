@@ -12,6 +12,7 @@ if (count($filmes) === 0) {
     echo '<p>Nenhum filme encontrado. Clique em "Criar" para adicionar um novo filme.</p>';
     exit;
 }
+
 ?>
 
 <h1>Listar</h1>
@@ -21,7 +22,7 @@ if (count($filmes) === 0) {
         <tr>
             <th>Título</th>
             <th>Ano</th>
-            <th>Duração (min)</th>
+            <th>Duração (em Minutos)</th>
             <th>Resumo</th>
             <th>Ações</th>
         </tr>

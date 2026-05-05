@@ -2,49 +2,95 @@
 
 require_once 'sessao.php';
 require_once 'db/mysql.php';
+require_once 'validacao.php';
 
+$error = null;
+$titulo = null;
+$ano = null;
+$minutos = null;
+$resumo = null;
 $id = $_GET['id'] ?? 0;
+$method = $_SERVER['REQUEST_METHOD'];
 
 if ($id === 0) {
     header('Location: index.php');
     exit;
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($method === 'POST') {
     $titulo = $_POST['titulo'];
     $ano = $_POST['ano'];
     $minutos = $_POST['minutos'];
     $resumo = $_POST['resumo'];
 
-    $statement = $pdo->prepare('
-        UPDATE filmes
-        SET titulo = ?,
-            ano = ?,
-            minutos = ?,
-            resumo = ?
-        WHERE id = ?;
-    ');
-    $statement->execute([$titulo, $ano, $minutos, $resumo, $id]);
+    $campos = [
+        'Titulo' => $titulo,
+        'Ano' => $ano,
+        'Minutos' => $minutos,
+        'Resumo' => $resumo
+    ];
+    
+    $error = validarDadosPost($campos);
 
-    header('Location: index.php');
-    exit;
+    if (!$error) {
+        try {
+            $statement = $pdo->prepare('
+                UPDATE filmes
+                SET titulo = ?,
+                    ano = ?,
+                    minutos = ?,
+                    resumo = ?
+                WHERE id = ?;
+            ');
+            $statement->execute([$titulo, $ano, $minutos, $resumo, $id]);
+    
+            if ($statement) {
+                header('Location: index.php');
+                exit;
+            } else {
+                $error = "Erro ao atualizar dados no banco.";
+            }
+        } catch (Exception $e) {
+            $error = "Revise a instrução ou procure erros no banco de dados.";
+        }
+    }
 }
 
 require_once 'header.php';
 
-$statement = $pdo->prepare('SELECT * FROM filmes WHERE id = ?;');
-$statement->execute([$id]);
+$filme = null;
+$tituloDB = null;
+$anoDB = null;
+$minutosDB = null;
+$resumoDB = null;
 
-if ($statement->rowCount() === 0) {
-    echo '<p>Filme não encontrado.</p>';
-    exit;
+try {
+    $statement = $pdo->prepare('SELECT * FROM filmes WHERE id = ?;');
+    $statement->execute([$id]);
+
+    if ($statement->rowCount() > 0) {
+        $filme = $statement->fetch();
+
+        $tituloDB = htmlspecialchars($filme['titulo']);
+        $anoDB = htmlspecialchars($filme['ano']);
+        $minutosDB = htmlspecialchars($filme['minutos']);
+        $resumoDB = htmlspecialchars($filme['resumo']);
+    } else {
+        echo "<p class='error'>Erro ao recuperar filme no banco de dados para o id: $id.</p>";
+        require_once 'footer.php';
+        exit;
+    }
+} catch (Exception $e) {
+    $error = "Revise a instrução ou procure erros no banco de dados.";
 }
-
-$filme = $statement->fetch();
 
 ?>
 
 <h1>Atualizar</h1>
+
+<?php if ($error): ?>
+    <p class="error"><?= $error ?></p>
+<?php endif; ?>
 
 <form method="post">
     <label for="titulo">Título:</label>
@@ -53,8 +99,8 @@ $filme = $statement->fetch();
         name="titulo"
         id="titulo"
         placeholder="Digite o título"
+        value="<?= $method === 'POST' ? $titulo : $tituloDB  ?>"
         required
-        value="<?= htmlspecialchars($filme['titulo']); ?>"
     >
     <br>
 
@@ -67,12 +113,12 @@ $filme = $statement->fetch();
         min="1800"
         max="2100"
         step="1"
+        value="<?= $method === 'POST' ? $ano : $anoDB  ?>"
         required
-        value="<?= htmlspecialchars($filme['ano']); ?>"
     >
     <br>
 
-    <label for="minutos">Duração:</label>
+    <label for="minutos">Duração (em Minutos):</label>
     <input
         type="number"
         name="minutos"
@@ -81,8 +127,8 @@ $filme = $statement->fetch();
         min="1"
         max="600"
         step="1"
+        value="<?= $method === 'POST' ? $minutos : $minutosDB  ?>"
         required
-        value="<?= htmlspecialchars($filme['minutos']); ?>"
     >
     <br>
 
@@ -92,7 +138,7 @@ $filme = $statement->fetch();
         id="resumo"
         placeholder="Digite o resumo"
         required
-    ><?= htmlspecialchars($filme['resumo']); ?></textarea>
+    ><?= $method === 'POST' ? $resumo : $resumoDB ?></textarea>
     <br>
 
     <button type="submit">Atualizar</button>

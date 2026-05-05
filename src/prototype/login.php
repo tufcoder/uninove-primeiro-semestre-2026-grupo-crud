@@ -1,5 +1,9 @@
 <?php
 
+require_once 'db/mysql.php';
+
+$error = null;
+
 session_start();
 
 if (isset($_SESSION['user'])) {
@@ -7,32 +11,41 @@ if (isset($_SESSION['user'])) {
   exit;
 }
 
-require_once 'db/mysql.php';
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $login = $_POST['login'];
     $senha = $_POST['senha'];
 
-    $statement = $pdo->prepare('SELECT * FROM usuarios WHERE login = ?;');
-    $statement->execute([$login]);
-    $usuario = $statement->fetch();
+    try {
+        $statement = $pdo->prepare('SELECT * FROM usuarios WHERE login = ?;');
+        $statement->execute([$login]);
 
-    if ($usuario && password_verify($senha, $usuario['senha'])) {
-        $_SESSION['user'] = [
-            'id' => $usuario['id'],
-            'login' => $usuario['login'],
-        ];
+        if ($statement) {
+            $usuario = $statement->fetch();
 
-        header('Location: listar.php');
-        exit;
-    } else {
-        echo '<p class="error">Login ou senha inválidos.</p>';
+            if ($usuario && password_verify($senha, $usuario['senha'])) {
+                $_SESSION['user'] = [
+                    'id' => $usuario['id'],
+                    'login' => $usuario['login'],
+                ];
+
+                header('Location: listar.php');
+                exit;
+            } else {
+                $error = 'Login ou senha inválidos.';
+            }
+        }
+    } catch (Exception $e) {
+       $error = 'Erro no banco de dados.';
     }
 }
 
 ?>
 
 <style>
+    /*
+        o login é um caso a parte, não tem o header
+        por isso ele precisa de um css próprio
+    */
     .error {
         color: red;
         font-weight: bold;
@@ -47,6 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </style>
 
 <h1>Login</h1>
+
+<?php if ($error): ?>
+    <p class="error"><?= $error ?></p>
+<?php endif; ?>
 
 <form method="post">
     <label for="login">Login:</label>

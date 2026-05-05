@@ -7,4 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <?php require_once 'nav.php'; ?>
+    <div class="menu">
+        <?php require_once 'nav.php'; ?>
+        <p>Olá, <strong class="upper"><?= $_SESSION['user']['login'] ?></strong></p>
+    </div>    
