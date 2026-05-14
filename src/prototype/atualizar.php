@@ -15,16 +15,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ano = $_POST['ano'];
     $minutos = $_POST['minutos'];
     $resumo = $_POST['resumo'];
+    $id_usuario = $_SESSION['user']['id'];
 
     $statement = $pdo->prepare('
         UPDATE filmes
         SET titulo = ?,
             ano = ?,
             minutos = ?,
-            resumo = ?
+            resumo = ?,
+            id_usuario = ?
         WHERE id = ?;
     ');
-    $statement->execute([$titulo, $ano, $minutos, $resumo, $id]);
+    $statement->execute([$titulo, $ano, $minutos, $resumo, $id_usuario, $id]);
 
     header('Location: index.php');
     exit;

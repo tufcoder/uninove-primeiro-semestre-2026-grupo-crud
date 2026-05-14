@@ -8,11 +8,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $ano = $_POST['ano'];
     $minutos = $_POST['minutos'];
     $resumo = $_POST['resumo'];
+    $id_usuario = $_SESSION['user']['id'];
 
     $statement = $pdo->prepare('
-        INSERT INTO filmes (titulo, ano, minutos, resumo) VALUES (?, ?, ?, ?);
+        INSERT INTO filmes (titulo, ano, minutos, resumo, id_usuario) VALUES (?, ?, ?, ?, ?);
     ');
-    $statement->execute([$titulo, $ano, $minutos, $resumo]);
+    $statement->execute([$titulo, $ano, $minutos, $resumo, $id_usuario]);
 
     header('Location: index.php');
     exit;
