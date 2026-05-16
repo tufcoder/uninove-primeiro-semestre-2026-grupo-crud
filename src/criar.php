@@ -4,24 +4,18 @@ require_once 'sessao.php';
 require_once 'db/mysql.php';
 require_once 'validacao.php';
 
-// parâmetros
-
-// separacao de responsabilidades -> SEPARATION OF CONCERNS
-
 $error = null;
 $titulo = null;
 $ano = null;
 $minutos = null;
 $resumo = null;
 
-// em orientação a objetos => getters and setters
-// setamos as variáveis => set/get => set = definir, configurar, dar um valor; get = obter, pegar
- 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $titulo = $_POST['titulo'];
     $ano = $_POST['ano'];
     $minutos = $_POST['minutos'];
     $resumo = $_POST['resumo'];
+    $id_usuario = $_SESSION['user']['id'];
 
     $campos = [
         'Titulo' => $titulo,
@@ -36,11 +30,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $statement = $pdo->prepare('
                 INSERT INTO filmes
-                    (titulo, ano, minutos, resumo)
+                    (titulo, ano, minutos, resumo, id_usuario)
                 VALUES
-                    (?, ?, ?, ?);
+                    (?, ?, ?, ?, ?);
             ');
-            $statement->execute([$titulo, $ano, $minutos, $resumo]);
+            $statement->execute([$titulo, $ano, $minutos, $resumo, $id_usuario]);
 
             if ($statement) {
                 header('Location: index.php');

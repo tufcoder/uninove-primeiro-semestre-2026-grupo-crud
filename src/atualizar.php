@@ -22,6 +22,7 @@ if ($method === 'POST') {
     $ano = $_POST['ano'];
     $minutos = $_POST['minutos'];
     $resumo = $_POST['resumo'];
+    $id_usuario = $_SESSION['user']['id'];
 
     $campos = [
         'Titulo' => $titulo,
@@ -39,10 +40,11 @@ if ($method === 'POST') {
                 SET titulo = ?,
                     ano = ?,
                     minutos = ?,
-                    resumo = ?
+                    resumo = ?,
+                    id_usuario = ?
                 WHERE id = ?;
             ');
-            $statement->execute([$titulo, $ano, $minutos, $resumo, $id]);
+            $statement->execute([$titulo, $ano, $minutos, $resumo, $id_usuario, $id]);
     
             if ($statement) {
                 header('Location: index.php');

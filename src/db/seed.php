@@ -6,7 +6,9 @@ $tabela_usuarios = "
     CREATE TABLE IF NOT EXISTS usuarios (
         id INT AUTO_INCREMENT PRIMARY KEY,
         login VARCHAR(255) NOT NULL UNIQUE,
-        senha VARCHAR(255) NOT NULL
+        senha VARCHAR(255) NOT NULL,
+        data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        data_alteracao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     );
 ";
 
@@ -16,7 +18,11 @@ $tabela_filmes = "
         titulo VARCHAR(255) NOT NULL UNIQUE,
         ano INT NOT NULL,
         minutos INT NOT NULL,
-        resumo TEXT NOT NULL
+        resumo TEXT NOT NULL,
+        id_usuario INT NOT NULL,
+        data_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        data_alteracao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT USUARIOS_FILMES_FK FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
     );
 ";
 
@@ -36,12 +42,25 @@ if ($statement->rowCount() === 0) {
     $pdo->exec($insert_usuario_admin);
 }
 
+$statement = $pdo->query("SELECT login FROM usuarios WHERE login = 'gerente';");
+
+if ($statement->rowCount() === 0) {
+    $senha_criptografada = password_hash('1234', PASSWORD_DEFAULT);
+    
+    $insert_usuario_admin = "
+        INSERT INTO usuarios (login, senha)
+        VALUES ('gerente', '$senha_criptografada');
+    ";
+
+    $pdo->exec($insert_usuario_admin);
+}
+
 $statement = $pdo->query("SELECT titulo FROM filmes WHERE titulo = 'Teste';");
 
 if ($statement->rowCount() === 0) {
     $insert_filme_teste = "
-        INSERT INTO filmes (titulo, ano, minutos, resumo)
-        VALUES ('Teste', 2024, 120, 'Resumo do filme de teste.');
+        INSERT INTO filmes (titulo, ano, minutos, resumo, id_usuario)
+        VALUES ('Teste', 2024, 120, 'Resumo do filme de teste.', 1);
     ";
 
     $pdo->exec($insert_filme_teste);

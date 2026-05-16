@@ -5,7 +5,7 @@ require_once 'db/mysql.php';
 require_once 'header.php';
 
 $filmes = $pdo
-    ->query('SELECT * FROM filmes ORDER BY titulo;')
+    ->query('SELECT * FROM filmes ORDER BY ano DESC, titulo ASC;')
     ->fetchAll();
 
 if (count($filmes) === 0) {
@@ -16,6 +16,8 @@ if (count($filmes) === 0) {
 ?>
 
 <h1>Listar</h1>
+
+<p>A listagem é feita por ANO (mais recente) e por T&Iacute;TULO (ordem alfab&eacute;tica).</p>
 
 <table>
     <thead>
@@ -45,7 +47,7 @@ if (count($filmes) === 0) {
                         name="id"
                         value="<?= $filme['id']; ?>"
                     >
-                        Atualizar
+                        🔃Atualizar
                     </button>
                 </form>
                 <form
@@ -59,7 +61,7 @@ if (count($filmes) === 0) {
                         name="id"
                         value="<?= $filme['id']; ?>"
                     >
-                        Deletar
+                        ❌Deletar
                     </button>
                 </form>
             </td>
