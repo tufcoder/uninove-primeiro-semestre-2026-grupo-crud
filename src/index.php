@@ -1,5 +1,5 @@
-<h1>Back-End</h1>
-
 <?php
 
-phpinfo();
+require_once 'login.php';
+
+?>
